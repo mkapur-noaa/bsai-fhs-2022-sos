@@ -128,14 +128,6 @@ for(int in c(2,4)){
     setwd(fulldir) 
     system('main.exe')
     
-    ##5.4. Get projection output
-    # write("#Projection results",paste0(x,"/proj_res_summ.out"))
-    ##The next 2 lines were missing
-    # assess_LY=retro_base$endyr	#last assessment year
-    # proj_out = get_proj_res(dir1=x, 
-    #                         data_file="proj_res_summ.out",
-    #                         FY=(assess_LY+1),
-    #                         k=i, nproj=nproj, species=spp)
     # print(proj_out)
     this_year = 2020+as.numeric(gsub('retro','',basename(x)))
     rec_table1 <-
@@ -158,8 +150,6 @@ for(int in c(2,4)){
     rec_table1$scenario <- rec_table2$Stock <- NULL
     rec_table2[,2:ncol(rec_table2)] <- 1000*rec_table2[,2:ncol(rec_table2)]
     rec_table <- bind_rows(rec_table1, rec_table2)
-    ## change order to match SAFE format & magnitudes
-    # rec_table <- rec_table[c(11,6,3,5,4,2,1,1,9,8,8),]
     
     ## save individual rec table
     write.csv(rec_table, paste0(x,'/rec_table.csv'), row.names=FALSE)
@@ -218,16 +208,7 @@ for(int in c(2,4)){
     ## run proj
     setwd(x) 
     system('main.exe')
-    
-    ##5.4. Get projection output
-    # write("#Projection results",paste0(x,"/proj_res_summ.out"))
-    ##The next 2 lines were missing
-    
-    # assess_LY=replist$endyr	#last assessment year
-    # proj_out = get_proj_res(dir1=x, proj_out='Projections',
-                            # data_file="proj_res_summ.out",
-                            # FY=(assess_LY+1), k=i, nproj=nproj, species=spp)
-    # print(proj_out)
+
     this_year = projyr
     rec_table1 <-
       read.table(paste0(x,'/percentdb.out')) %>%
@@ -248,8 +229,6 @@ for(int in c(2,4)){
     rec_table1$scenario <- rec_table2$Stock <- NULL
     rec_table2[,2:ncol(rec_table2)] <- 1000*rec_table2[,2:ncol(rec_table2)]
     rec_table <- bind_rows(rec_table1, rec_table2)
-    ## change order to match SAFE format & magnitudes
-    # rec_table <- rec_table[c(11,6,3,5,4,2,1,1,9,8,8),]
     
     ## save individual rec table
     write.csv(rec_table, paste0(x,'/rec_table.csv'), row.names=FALSE)
