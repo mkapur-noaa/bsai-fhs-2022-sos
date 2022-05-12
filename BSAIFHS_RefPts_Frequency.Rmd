@@ -121,8 +121,8 @@ for(int in c(2,4)){
     )
     
         ## copy executable and tacpar
-    file.copy(here('projection','2021_projections','main.exe'), fulldir, overwrite = TRUE)
-    file.copy(here('projection','2021_projections','tacpar.dat'), fulldir, overwrite = TRUE)
+    file.copy(here('main.exe'), fulldir, overwrite = TRUE)
+    file.copy(here('tacpar.dat'), fulldir, overwrite = TRUE)
     
     ## run proj for full year
     setwd(fulldir) 
@@ -200,8 +200,8 @@ for(int in c(2,4)){
     ## model_proj should match full2008 (values thru 2008)
     
     ## copy executable and tacpar
-    file.copy(here('projection','2021_projections','main.exe'), x, overwrite = TRUE)
-    file.copy(here('projection','2021_projections','tacpar.dat'), x, overwrite = TRUE)
+    file.copy(here('main.exe'), x, overwrite = TRUE)
+    file.copy(here('tacpar.dat'), x, overwrite = TRUE)
     
     ## run proj
     setwd(x) 
