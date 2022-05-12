@@ -252,12 +252,6 @@ for(int in c(2,4)){
   master_table$interval = int
   master_table <- data.frame(master_table)
   write.csv(master_table, file = paste0(homedir, "/master_table.csv"),row.names = F)
-  
-  ## load csv with ACTUAL reference points (refYr, ABC, OFL)
-  ## got these from archives in Cole's folder (safe tables)
-
-  
-  
 
 } ## end loop over 2 or 4 year intervals
  
