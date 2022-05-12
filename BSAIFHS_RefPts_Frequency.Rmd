@@ -34,17 +34,14 @@ require(tidyverse)
 require(dplyr)
 require(ggplot2)
 theme_set(ggsidekick::theme_sleek())
-## these are from 2020_files/projections, but removed the sdir argument
-# source(here('projection','write_proj.r'))
-# source(here('projection','write_proj_spcat.r'))#
-# source(here('projection','setup.r'))
 ```
 
 ```{r, eval = FALSE, include = FALSE, warning = FALSE, message = FALSE}
-source(here('2020_files','projection','write_proj.r'))
-source(here('2020_files','projection','write_proj_spcat.r')) # manually changed line 24 to not invoke data subdir
-source(here('2020_files','projection','setup.r')) ## changed line 19 to turn of FMSY_35 as was done before
-source(here('2020_files','projection','get_proj_res.r'))
+## from CCM
+source(here('write_proj.r'))
+source(here('write_proj_spcat.r')) # manually changed line 24 to not invoke data subdir
+source(here('setup.r')) ## changed line 19 to turn of FMSY_35 as was done before
+source(here('get_proj_res.r'))
 ## passed to write_proj function
 NSEX=2						# number of sexes used in assessment model
 Nfishery=1					# number of fisheries(fleets) #This was set equal to 2
@@ -301,17 +298,6 @@ master_table <- bind_rows(read.csv(here('sos','2022-05-11-proj-2y','master_table
     filter(refYr == assessment_year+1)  %>%## only use one year ahead
     reshape2::melt(id = names(master_table)[c(1:4,7)]) %>%
     mutate(value = value/1000) 
-  
-  true_rps <- t(read.csv(here('sos','2021-11-12-BSAI_harvest_specs_1986_2021new.csv')) ) %>%
-    as.data.frame() %>%
-    mutate(YEAR = row.names(.), 
-           V2= as.numeric(gsub(",","",V2)),
-           yr =as.numeric( substr(YEAR,2,5))) %>%
-    filter(V1 == 'OFL'  | V1 == 'ABC') %>%
-    mutate(refYr = yr, variable = V1, value = V2, 
-           assessment_year = NA,  assessment_used = NA,
-           interval = NA , assessment_type = 'Federal Register') %>%
-    select(names(master_table2))
 
     ggplot(data = master_table2,
            aes(x = refYr, y = value, 
