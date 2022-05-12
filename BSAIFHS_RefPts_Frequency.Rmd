@@ -40,7 +40,7 @@ theme_set(ggsidekick::theme_sleek())
 ## from CCM
 source(here('write_proj.r'))
 source(here('write_proj_spcat.r')) # manually changed line 24 to not invoke data subdir
-source(here('setup.r')) ## changed line 19 to turn of FMSY_35 as was done before
+source(here('setup.r')) ## changed line 19 to turn off FMSY_35 as was done before
 source(here('get_proj_res.r'))
 ## passed to write_proj function
 NSEX=2						# number of sexes used in assessment model
