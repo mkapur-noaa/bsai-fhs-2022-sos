@@ -26,6 +26,8 @@ This analysis uses the following assumptions and approaches:
 
 + Based on this quick analysis, there do not appear to be strong impacts in the period analyzed and given the assumptions at the beginning of this document. There are no changes in either management quantity (ABC or OFL) greater than 8%. At present, this accounts for roughly 5000 mt of catch; note that the average catch over the modeled period has been less than 10,000, while attainment (catch/TAC has been on the order of <25%.)
 
++ The realized TACs come from proj alternative #7.
+
 
 ```{r, eval = T, include = F, warning = FALSE, message = FALSE}
 require(r4ss)
@@ -68,16 +70,16 @@ spp="BSAI_flathead"
 #            ## 2008:2020 in two year increments
 #            years = seq(0,-12,-2))
 
-retrodirs <- list.dirs(here('sos','retrospectives'), recursive = F)
+retrodirs <- list.dirs(here('retrospectives'), recursive = F)
 # retromods <- SSgetoutput(dirvec = retrodirs)
 # retroSummary <- SSsummarize(retromods)
-# save(retroSummary, file = here('sos','retrospectives',paste0(Sys.Date(),'-retroSummary.rdata')))
+# save(retroSummary, file = here('retrospectives',paste0(Sys.Date(),'-retroSummary.rdata')))
 # retronames <- paste0('Full Assessment in ',seq(2008,2020,2))
 # SSplotComparisons(retroSummary,
 #                   plot = FALSE,
 #                   png = T,
 #                   endyrvec = seq(2008,2020,2),
-#                   plotdir = here('sos','retrospectives'),
+#                   plotdir = here('retrospectives'),
 #                   uncertainty=TRUE,  legendlabels = retronames)
 
 ## loop through all folders and generate a proj data file for each base model
@@ -88,14 +90,15 @@ lapply(retrodirs, FUN = function(x) write_proj(dir=x,  sdir =x,
                                                rec_FY=rec_FY, rec_LY_decrement=rec_LY_decrement,
                                                spawn_month=spawn_month, Fratios=Fratios))
 
-
+```
   
 
+```{r, eval = FALSE, include = FALSE, warning = FALSE, message = FALSE}
 ## loop through retro folders and create projections at correct intervals
 for(int in c(2,4)){
   master_table <- NULL; idx = 1 ## reset for each interval
-  homedir = here('sos',paste0(Sys.Date(),'-proj-',int,'y')) ## premade folders
-  dir.create(homedir)
+  homedir = here(paste0('2022-05-11-proj-',int,'y')) ## premade folders
+  # dir.create(homedir)
   ## copy in the relevant base models
   if(int ==2) { baseidx <-c(1:length(retrodirs))} else{ baseidx <- c(7,2,4,6)}
   baseYrs <- 2020+as.numeric(gsub('retro','',basename(retrodirs[baseidx]))) ## actual years, in order
@@ -103,30 +106,30 @@ for(int in c(2,4)){
   ## copy in all benchmark models at relevant intervals
   sapply(retrodirs[baseidx], FUN = function(x){
     fulldir = paste0(homedir, "/full-",2020+as.numeric(gsub('retro','',basename(x))))
-    dir.create(fulldir)
-    file.copy(from = list.files(x, full.names = T),  to=fulldir, overwrite = TRUE) ## includes model_proj
-    retro_base = SS_output(fulldir, verbose = F)
-    ## write spcat with year-specific catch info
-    write_proj_spcat(dir = fulldir,sdir = fulldir,
-                     data_file = 'spp_catch.dat', ## name of new file - must match what is in spp_catch.dat
-                     data =  retro_base, ## model basis
-                     ct_yrs = int+1 ## eg for 2009 takes proj catch 2008-2012
-    )
-    
-    ## write setup with year-specific catch info
-    setup(dir = fulldir, sdir = fulldir,
-          data_file = 'setup.dat', ## name of new file 
-          data = retro_base , ## model basis
-          nproj = int+1
-    )
-    
-        ## copy executable and tacpar
-    file.copy(here('main.exe'), fulldir, overwrite = TRUE)
-    file.copy(here('tacpar.dat'), fulldir, overwrite = TRUE)
-    
-    ## run proj for full year
-    setwd(fulldir) 
-    system('main.exe')
+    # dir.create(fulldir)
+    # file.copy(from = list.files(x, full.names = T),  to=fulldir, overwrite = TRUE) ## includes model_proj
+    # retro_base = SS_output(fulldir, verbose = F)
+    # ## write spcat with year-specific catch info
+    # write_proj_spcat(dir = fulldir,sdir = fulldir,
+    #                  data_file = 'spp_catch.dat', ## name of new file - must match what is in spp_catch.dat
+    #                  data =  retro_base, ## model basis
+    #                  ct_yrs = int+1 ## eg for 2009 takes proj catch 2008-2012
+    # )
+    # 
+    # ## write setup with year-specific catch info
+    # setup(dir = fulldir, sdir = fulldir,
+    #       data_file = 'setup.dat', ## name of new file 
+    #       data = retro_base , ## model basis
+    #       nproj = int+1
+    # )
+    # 
+    #     ## copy executable and tacpar
+    # file.copy(here('main.exe'), fulldir, overwrite = TRUE)
+    # file.copy(here('tacpar.dat'), fulldir, overwrite = TRUE)
+    # 
+    # ## run proj for full year
+    # setwd(fulldir) 
+    # system('main.exe')
     
     # print(proj_out)
     this_year = 2020+as.numeric(gsub('retro','',basename(x)))
@@ -148,7 +151,10 @@ for(int in c(2,4)){
     rec_table1$scenario <- rec_table2$Stock <- NULL
     rec_table2[,2:ncol(rec_table2)] <- 1000*rec_table2[,2:ncol(rec_table2)]
     rec_table <- bind_rows(rec_table1, rec_table2)
-    
+    TACS <- read.table(paste0(fulldir,'/means.out')) %>%
+      as.data.frame(stringsAsFactors=FALSE) %>%
+      transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+                value=as.numeric(V5))
     ## save individual rec table
     write.csv(rec_table, paste0(x,'/rec_table.csv'), row.names=FALSE)
     
@@ -262,8 +268,8 @@ for(int in c(2,4)){
 
 ```{r, eval = T, echo = F, include = T, warning = FALSE, message = FALSE}
 
-master_table <- bind_rows(read.csv(here('sos','2022-05-11-proj-2y','master_table.csv'))  ,
-                          read.csv(here('sos','2022-05-11-proj-4y','master_table.csv'))  )
+master_table <- bind_rows(read.csv(here('2022-05-11-proj-2y','master_table.csv'))  ,
+                          read.csv(here('2022-05-11-proj-4y','master_table.csv'))  )
 ## plot results
   master_table2 <- master_table %>% 
     filter(refYr == assessment_year+1)  %>%## only use one year ahead
